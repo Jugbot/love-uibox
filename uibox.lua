@@ -10,7 +10,7 @@ function UIBox:init(args)
   self.min, self.max = args.min, args.max
   self.size, self.offset = args.size or 1, args.offset or 0
   self.x, self.y, self.width, self.height = 0,0,0,0
-  self.color = args.color or {0,0,0,0.1}
+  self.color = args.color or {1,1,1,0.1}
   self.parent = nil
   self.children = {}
 end
@@ -29,7 +29,7 @@ function UIBox:refresh()
   local function correct(limit, cx, cw, sx, sw)
     -- helper function for correcting by min or max (like justify space between flexbox css)
     local diff = limit - cw
-    return cx - diff * ((cx + cw/2 - sx) / (sw)), limit
+    return cx + diff * ((sx-cx) / (sw-cw)), limit
   end
   if self.parent == nil then
     self.width, self.height = love.graphics.getWidth(), love.graphics.getHeight()
@@ -45,8 +45,7 @@ function UIBox:refresh()
       child.height = self.height * child.size
       if child.min ~= nil and child.min > child.height then 
         child.y, child.height = correct(child.min, child.y, child.height, self.y, self.height)
-      end
-      if child.max ~= nil and child.max < child.height then
+      elseif child.max ~= nil and child.max < child.height then
         child.y, child.height = correct(child.max, child.y, child.height, self.y, self.height)
       end
     else -- == "row"
@@ -56,8 +55,7 @@ function UIBox:refresh()
       child.height = self.height
       if child.min ~= nil and child.min > child.width then 
         child.x, child.width = correct(child.min, child.x, child.width, self.x, self.width)
-      end
-      if child.max ~= nil and child.max < child.width then
+      elseif child.max ~= nil and child.max < child.width then
         child.x, child.width = correct(child.max, child.x, child.width, self.x, self.width)
       end
     end
